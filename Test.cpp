@@ -2,188 +2,124 @@
 #include "FamilyTree.hpp"
 #include <string>
 
-
 using namespace family;
+Tree *buildtestT();
 
-Tree *test_tree(){ // helper function for other tests
-    Tree *T  = new Tree("Yosef"); // Yosef is the "root" of the tree (the youngest person).
-	CHECK_NOTHROW(T->addFather("Yosef", "Yaakov"));   // Tells the tree that the father of Yosef is Yaakov.
-	CHECK_NOTHROW(T->addMother("Yosef", "Rachel"));   // Tells the tree that the mother of Yosef is Rachel.
-	CHECK_NOTHROW(T->addFather("Yaakov", "Isaac"));
-	CHECK_NOTHROW(T->addMother("Yaakov", "Rivka"));
-	CHECK_NOTHROW(T->addFather("Isaac", "Avraham"));
-	CHECK_NOTHROW(T->addMother("Isaac", "Sara"));
-	CHECK_NOTHROW(T->addFather("Avraham", "Terah"));
-    
-	CHECK_NOTHROW(T->addFather("Rivka", "Betuel"));
-    CHECK_NOTHROW(T->addFather("Rachel", "Lavan"));
-    CHECK_NOTHROW(T->addFather("Sara", "Haran"));
-    CHECK_NOTHROW(T->addFather("Betuel", "Nahor"));
-    CHECK_NOTHROW(T->addMother("Betuel", "Milca")); 
-
-     return T;
+TEST_CASE("add funcs") {
+   Tree t("AA");
+   CHECK_NOTHROW(t.addFather("AA", "AF"));
+   CHECK_NOTHROW(t.addFather("AF", "AFF"));
+   CHECK_NOTHROW(t.addFather("AFF", "AFFF"));
+   CHECK_NOTHROW(t.addMother("AA", "AM"));
+   CHECK_NOTHROW(t.addMother("AM", "AMM"));
+   CHECK_NOTHROW(t.addMother("AMM", "AMMM"));
+   CHECK_THROWS(t.addMother("AA", "AM")); 
+   CHECK_THROWS(t.addMother("AM", "asd")); 
+   CHECK_THROWS(t.addMother("NOTEXIST", "asd")); 
+   CHECK_THROWS(t.addFather("AA", "AF")); 
+   CHECK_THROWS(t.addFather("AF", "something")); 
+   CHECK_THROWS(t.addFather("NOTEXIST", "something")); 
+   CHECK(t.find("father") == "AF");
+   CHECK(t.find("grandfather") == "AFF");
+   CHECK(t.find("great-grandfather") == "AFFF");
+   CHECK(t.find("mother") == "AM");
+   CHECK(t.find("grandmother") == "AMM");
+   CHECK(t.find("great-grandmother") == "AMMM");
+   Tree t1("AA");
+   CHECK_NOTHROW(t1.addMother("AA", "qwee").addFather("AA", "asdasd").addMother("qwee","zxczxc").addFather("asdasd", "asdasdasd"));
 }
-
-TEST_CASE("add father") {
-   Tree t("Nati");
-   CHECK_NOTHROW(t.addFather("Nati", "Nadav"));
-   CHECK_NOTHROW(t.addFather("Nadav", "Haim"));
-   CHECK_NOTHROW(t.addFather("Haim", "Dori"));
-
-   CHECK(t.find("father") == "Nadav");
-   CHECK(t.find("grandfather") == "Haim");
-   CHECK(t.find("great-grandfather") == "Dori");
-
-   CHECK_THROWS(t.addFather("Nati", "Nadav")); 
-   CHECK_THROWS(t.addFather("Nadav", "Avi")); 
-   CHECK_THROWS(t.addFather("Dani", "Avi")); 
-}
-
-TEST_CASE("add mother") {
-   Tree t("Nati");
-   CHECK_NOTHROW(t.addMother("Nati", "Orit"));
-   CHECK_NOTHROW(t.addMother("Orit", "Aliza"));
-   CHECK_NOTHROW(t.addMother("Aliza", "Chyia"));
-
-   CHECK(t.find("mother") == "Orit");
-   CHECK(t.find("grandmother") == "Aliza");
-   CHECK(t.find("great-grandmother") == "Chyia");
-
-   CHECK_THROWS(t.addMother("Nati", "Orit")); // Nati alredy have a mother
-   CHECK_THROWS(t.addMother("Orit", "Ruti")); // Orit alredy have a mother
-   CHECK_THROWS(t.addMother("Dani", "Ruti")); // Dani not exist
-
-}
-
-TEST_CASE("add father & mother chaining") {
-    Tree t("Nati");
-    CHECK_NOTHROW(t.addMother("Nati", "bla").addFather("Nati", "plip").addMother("bla","qwerty"));     
-}
-
-TEST_CASE("display") {
+TEST_CASE("relation func") {
     Tree *T;
-    CHECK_NOTHROW(T = test_tree());
-    CHECK_NOTHROW(T->display()); 
-
+    CHECK_NOTHROW(T = buildtestT());
+    CHECK(T->relation("yossi") == "me");
+    CHECK(T->relation("avi") == "father");
+    CHECK(T->relation("timur") == "grandfather");
+    CHECK(T->relation("ronen") == "great-grandfather");
+    CHECK(T->relation("rubi") == "great-great-grandfather");
+    CHECK(T->relation("anit") == "great-grandmother");
+    CHECK(T->relation("shimrit") == "grandmother");
+    CHECK(T->relation("amir") == "great-grandfather");
+    CHECK(T->relation("rahel") == "mother");
+    CHECK(T->relation("zahi") == "grandfather");
+    CHECK(T->relation("shlomi") == "great-great-grandfather");
+    CHECK(T->relation("eyal") == "great-great-grandfather");
+    CHECK(T->relation("hofit") == "great-great-grandmother"); 
     delete T;
 }
-
-TEST_CASE("relation") {
-    Tree *T;
-    CHECK_NOTHROW(T = test_tree());
-
-    CHECK(T->relation("Yosef") == "me");
-    CHECK(T->relation("Yaakov") == "father");
-    CHECK(T->relation("Isaac") == "grandfather");
-    CHECK(T->relation("Avraham") == "great-grandfather");
-    CHECK(T->relation("Terah") == "great-great-grandfather");
-    CHECK(T->relation("Sara") == "great-grandmother");
-    CHECK(T->relation("Rivka") == "grandmother");
-    CHECK(T->relation("Betuel") == "great-grandfather");
-    CHECK(T->relation("Rachel") == "mother");
-
-    CHECK(T->relation("Lavan") == "grandfather");
-    CHECK(T->relation("Haran") == "great-great-grandfather");
-    CHECK(T->relation("Nahor") == "great-great-grandfather");
-    CHECK(T->relation("Milca") == "great-great-grandmother"); 
-
-    delete T;
+TEST_CASE("test show") {
+    Tree *tree;
+    CHECK_NOTHROW(tree = buildtestT());
+    CHECK_NOTHROW(tree->display()); 
+    delete tree;
 }
 
 TEST_CASE("find") {
     Tree *T;
-    CHECK_NOTHROW(T = test_tree());
-
-    CHECK(T->find("me") == "Yosef"); 
-    CHECK(T->find("father") == "Yaakov"); 
-    CHECK(T->find("mother") == "Rachel"); 
-
-    string grandfather;
-    CHECK_NOTHROW(grandfather = T->find("grandfather"));
-    CHECK((grandfather == "Isaac" ||
-           grandfather == "Lavan")); 
-
-    CHECK(T->find("grandmother") == "Rivka");
-
-    string great_grandfather;
-    CHECK_NOTHROW(great_grandfather = T->find("great-grandfather")); 
-    CHECK((great_grandfather == "Avraham" ||
-           great_grandfather == "Betuel")); 
-
-    CHECK(T->find("great-grandmother") == "Sara"); 
-
-    string great_great_grandfather;
-    CHECK_NOTHROW(great_great_grandfather = T->find("great-great-grandfather")); 
-    CHECK((great_great_grandfather == "Terah" ||
-           great_great_grandfather == "Haran" || 
-           great_great_grandfather == "Nahor")); 
-
-    CHECK(T->find("great-great-grandmother") == "Milca"); 
-   
-    CHECK_THROWS(T->find("brother")); // not define
-    CHECK_THROWS(T->find("great-great-great-grandfather")); // not exist
-    CHECK_THROWS(T->find("Sara")); // not a rilation
+    CHECK_NOTHROW(T = buildtestT());
+    CHECK(T->find("me") == "yossi"); 
+    CHECK(T->find("father") == "avi"); 
+    CHECK(T->find("mother") == "rahel"); 
+    CHECK_THROWS(T->find("asd"));
+    CHECK_NOTHROW(string("grandfather") = T->find("grandfather"));
+    CHECK((string("grandfather") == "timur" || string("grandfather") == "zahi")); 
+    CHECK(T->find("grandmother") == "shimrit");   
+    CHECK_NOTHROW(string("great_grandfather") = T->find("great-grandfather")); 
+    CHECK((string("great_grandfather") == "ronen" || string("great_grandfather") == "amir")); 
+    CHECK(T->find("great-grandmother") == "anit"); 
+    CHECK_NOTHROW(string("great_great_grandfather") = T->find("great-great-grandfather")); 
+    CHECK((string("great_great_grandfather") == "rubi" || string("great_great_grandfather") == "shlomi" || string("great_great_grandfather") == "eyal")); 
+    CHECK(T->find("great-great-grandmother") == "hofit"); 
+    CHECK_THROWS(T->find("brother"));
+    CHECK_THROWS(T->find("great-great-great-grandfather"));
+    CHECK_THROWS(T->find("great-great-great-great-grandfather"));
+    CHECK_THROWS(T->find("anit"));
     delete T;
 }
-
-
 
 TEST_CASE("remove function") {
     Tree *T;
-    CHECK_NOTHROW(T = test_tree());
+    CHECK_NOTHROW(T = buildtestT());
 
-    CHECK_THROWS(T->remove("Yosef")); // cant remove root
- 
-    CHECK_THROWS(T->remove("Dani")); // cant remove unexist 
+    CHECK_THROWS(T->remove("yossi ")); //try to remove the root --> exception
 
-    CHECK_NOTHROW(T->remove("Betuel"));
+    CHECK((T->find("grandfather") == string("zahi") || T->find("grandfather") == string("timur")));
 
-    CHECK(T->relation("Betuel") == "unrelated");
-    CHECK(T->relation("Nahor") == "unrelated");
-    CHECK(T->relation("Milca") == "unrelated");
+    CHECK(T->find("father") == string("avi"));
+    T->remove("avi"); 
+    CHECK_THROWS(T->find("father"));
+    CHECK(T->find("grandfather") == string("timur")); //because zahi has removed from the tree while removing avi
 
-    CHECK_THROWS(T->remove("Betuel")); // already removed 
-    CHECK_THROWS(T->remove("Nahor")); // already removed 
-    CHECK_THROWS(T->remove("Milca")); // already removed 
+    CHECK(T->find("great-grandmother") == string("Vered")); 
+    CHECK(T->find("great-grandfather") == string("Shlomi")); 
+    T->remove("Vered");
+    CHECK_THROWS(T->find("great-grandmother"));
+    T->remove("timur");
+    CHECK_THROWS(T->find("great-grandfather"));
+    CHECK_THROWS(T->find(T->find("grandfather")));
 
-
-    CHECK_NOTHROW(T->remove("Haran"));
-    CHECK(T->relation("Haran") == "unrelated");
-    CHECK_THROWS(T->remove("Haran")); // already removed 
-
-
-    CHECK_NOTHROW(T->remove("Lavan"));
-    CHECK(T->relation("Lavan") == "unrelated");
-    CHECK_THROWS(T->remove("Lavan")); // already removed 
-
-    CHECK_NOTHROW(T->remove("Terah"));
-    CHECK(T->relation("Terah") == "unrelated");
-    CHECK_THROWS(T->remove("Terah")); // already removed 
-
-    CHECK_NOTHROW(T->remove("Sara"));
-    CHECK(T->relation("Sara") == "unrelated");
-    CHECK_THROWS(T->remove("Sara")); // already removed 
-
-    CHECK_NOTHROW(T->remove("Avraham"));
-    CHECK(T->relation("Avraham") == "unrelated");
-    CHECK_THROWS(T->remove("Avraham")); // already removed 
-
-    CHECK_NOTHROW(T->remove("Rivka"));
-    CHECK(T->relation("Rivka") == "unrelated");
-    CHECK_THROWS(T->remove("Rivka")); // already removed 
-
-    CHECK_NOTHROW(T->remove("Isaac"));
-    CHECK(T->relation("Isaac") == "unrelated");
-    CHECK_THROWS(T->remove("Isaac")); // already removed 
-
-    CHECK_NOTHROW(T->remove("Rachel"));
-    CHECK(T->relation("Rachel") == "unrelated");
-    CHECK_THROWS(T->remove("Rachel")); // already removed 
-
-    CHECK_NOTHROW(T->remove("Yaakov"));
-    CHECK(T->relation("Yaakov") == "unrelated");
-    CHECK_THROWS(T->remove("Yaakov")); // already removed 
-
-    delete T;
+    T->addFather("Anat", "gabi"); 
+    CHECK(T->find("grandfather") == string("gabi")); 
+    CHECK(T->find("grandmother") == string("hofit"));
+    T->remove("hofit"); 
+    CHECK_THROWS(T->find("grandmother")); 
+    T->remove("Anat"); 
+    CHECK_THROWS(T->find("grandfather")); 
+    CHECK_THROWS(T->find("mother"));
 }
 
+Tree *buildtestT(){ 
+    Tree *T  = new Tree("yossi"); 
+	CHECK_NOTHROW(T->addFather("yossi", "avi"));   
+	CHECK_NOTHROW(T->addMother("yossi", "rahel"));  
+    CHECK_NOTHROW(T->addFather("rahel", "zahi"));
+	CHECK_NOTHROW(T->addFather("avi", "timur"));
+	CHECK_NOTHROW(T->addMother("avi", "shimrit"));
+	CHECK_NOTHROW(T->addFather("shimrit", "amir"));
+	CHECK_NOTHROW(T->addFather("timur", "ronen"));
+	CHECK_NOTHROW(T->addMother("timur", "anit"));
+    CHECK_NOTHROW(T->addFather("anit", "shlomi"));
+	CHECK_NOTHROW(T->addFather("ronen", "rubi"));
+    CHECK_NOTHROW(T->addFather("amir", "eyal"));
+    CHECK_NOTHROW(T->addMother("amir", "hofit")); 
+    return T;
+}
