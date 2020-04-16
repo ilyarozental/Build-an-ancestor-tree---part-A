@@ -79,30 +79,63 @@ TEST_CASE("find") {
 TEST_CASE("remove function") {
     Tree *T;
     CHECK_NOTHROW(T = buildtestT());
-
-    CHECK_THROWS(T->remove("yossi ")); //try to remove the root --> exception
-
+    CHECK_THROWS(T->remove("yossi")); 
+    CHECK_THROWS(T->remove("Dani"));  
+    CHECK_NOTHROW(T->remove("amir"));
+    CHECK(T->relation("amir") == "unrelated");
+    CHECK(T->relation("eyal") == "unrelated");
+    CHECK(T->relation("hofit") == "unrelated");
+    CHECK_THROWS(T->remove("amir")); 
+    CHECK_THROWS(T->remove("eyal")); 
+    CHECK_THROWS(T->remove("hofit"));  
+    CHECK_NOTHROW(T->remove("shlomi"));
+    CHECK(T->relation("shlomi") == "unrelated");
+    CHECK_THROWS(T->remove("shlomi")); 
+    CHECK_NOTHROW(T->remove("zahi"));
+    CHECK(T->relation("zahi") == "unrelated");
+    CHECK_THROWS(T->remove("zahi")); 
+    CHECK_NOTHROW(T->remove("rubi"));
+    CHECK(T->relation("rubi") == "unrelated");
+    CHECK_THROWS(T->remove("rubi")); 
+    CHECK_NOTHROW(T->remove("anit"));
+    CHECK(T->relation("anit") == "unrelated");
+    CHECK_THROWS(T->remove("anit"));   
+    CHECK_NOTHROW(T->remove("ronen"));
+    CHECK(T->relation("ronen") == "unrelated");
+    CHECK_THROWS(T->remove("ronen"));   
+    CHECK_NOTHROW(T->remove("shimrit"));
+    CHECK(T->relation("shimrit") == "unrelated");
+    CHECK_THROWS(T->remove("shimrit"));   
+    CHECK_NOTHROW(T->remove("timur"));
+    CHECK(T->relation("timur") == "unrelated");
+    CHECK_THROWS(T->remove("timur"));   
+    CHECK_NOTHROW(T->remove("rahel"));
+    CHECK(T->relation("rahel") == "unrelated");
+    CHECK_THROWS(T->remove("rahel"));   
+    CHECK_NOTHROW(T->remove("avi"));
+    CHECK(T->relation("avi") == "unrelated");
+    CHECK_THROWS(T->remove("avi"));   
+    
+    CHECK_NOTHROW(T = buildtestT());
+    CHECK_THROWS(T->remove("yossi ")); 
     CHECK((T->find("grandfather") == string("zahi") || T->find("grandfather") == string("timur")));
-
     CHECK(T->find("father") == string("avi"));
     T->remove("avi"); 
     CHECK_THROWS(T->find("father"));
-    CHECK(T->find("grandfather") == string("timur")); //because zahi has removed from the tree while removing avi
-
-    CHECK(T->find("great-grandmother") == string("Vered")); 
-    CHECK(T->find("great-grandfather") == string("Shlomi")); 
-    T->remove("Vered");
+    CHECK(T->find("grandfather") == string("timur"));
+    CHECK(T->find("great-grandmother") == string("shimrit")); 
+    CHECK(T->find("great-grandfather") == string("ronen")); 
+    T->remove("shimrit");
     CHECK_THROWS(T->find("great-grandmother"));
     T->remove("timur");
     CHECK_THROWS(T->find("great-grandfather"));
     CHECK_THROWS(T->find(T->find("grandfather")));
-
-    T->addFather("Anat", "gabi"); 
+    T->addFather("shimrit", "gabi"); 
     CHECK(T->find("grandfather") == string("gabi")); 
     CHECK(T->find("grandmother") == string("hofit"));
     T->remove("hofit"); 
     CHECK_THROWS(T->find("grandmother")); 
-    T->remove("Anat"); 
+    T->remove("shimrit"); 
     CHECK_THROWS(T->find("grandfather")); 
     CHECK_THROWS(T->find("mother"));
 }
